@@ -1,33 +1,13 @@
-# Use this Blueprint to deploy n8n on Render as a web
-# service that uses a Postgres database to store
-# workflow data.
-#
-# This Blueprint uses paid instance types to ensure
-# proper functionality and no expiration.
 services:
   - type: web
-    plan: starter  # Changed from free
-    # This is the runtime for services that pull a prebuilt Docker image
+    plan: starter
     runtime: image
-    # You can give the service any name
     name: n8n-service
     image:
-      # Pulls the n8n image tagged as latest from Docker Hub
       url: docker.io/n8nio/n8n:latest
-    # All environment variables defined below are required!
-    #
-    # You can define additional environment variables as needed.
     envVars:
-      # Generates a base64-encoded key for
-      # encrypting credentials in n8n
-      #
-      # Do not modify this value after it's generated!
-      # If you do, you'll lose access to all credentials
-      # encrypted with the previous value.
       - key: N8N_ENCRYPTION_KEY
         generateValue: true
-      # These automatically populate connection details 
-      # for the Render Postgres database defined below
       - key: DB_TYPE
         value: postgresdb
       - key: DB_POSTGRESDB_DATABASE
@@ -46,7 +26,16 @@ services:
         fromDatabase:
           name: n8n-db
           property: user
+      # Custom environment variables for AI Music Lab
+      - key: WEBHOOK_URL
+        value: https://n8n-service-jvly.onrender.com/
+      - key: SUPABASE_URL
+        value: https://azyglacvfempexvmwlya.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false  # Will use existing value from Render
+      - key: SUPABASE_SERVICE_KEY
+        sync: false  # Will use existing value from Render
+
 databases:
   - name: n8n-db
-    plan: basic-256mb  # Changed from free
-    # Paid instance with 1 GB of disk space
+    plan: basic-256mb
